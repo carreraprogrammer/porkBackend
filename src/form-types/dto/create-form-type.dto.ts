@@ -1,4 +1,10 @@
+// src/form-types/dto/create-form-type.dto.ts
+import { IsString } from 'class-validator';
+
 export class CreateFormTypeDto {
-  key: string;
-  label: string;
+  @IsString()
+  key!: string;
+
+  @IsString()
+  label!: string;
 }

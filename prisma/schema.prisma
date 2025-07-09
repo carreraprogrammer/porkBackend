@@ -1,12 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -15,13 +8,14 @@ datasource db {
 }
 
 model QuestionDefinition {
-  id        String   @id @default(uuid())
-  label     String
-  fieldType String
-  options   Json?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  responses QuestionResponse[]
+  questionId String   @id
+  label      String
+  fieldType  String
+  options    Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  responses  QuestionResponse[]
 }
 
 model FormType {
@@ -35,18 +29,21 @@ model FormSubmission {
   id           String            @id @default(uuid())
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
+
   formTypeId   Int               @map("form_type_id")
   formType     FormType          @relation(fields: [formTypeId], references: [id])
+
   metadata     Json
   responses    QuestionResponse[]
 }
 
 model QuestionResponse {
-  id           String   @id @default(uuid())
-  questionId   String
-  submissionId String
+  id           String            @id @default(uuid())
+  questionId   String            @map("question_id")
+  submissionId String            @map("submission_id")
   response     Json?
-  question     QuestionDefinition @relation(fields: [questionId], references: [id])
+
+  question     QuestionDefinition @relation(fields: [questionId], references: [questionId])
   submission   FormSubmission     @relation(fields: [submissionId], references: [id])
 
   @@index([questionId])

@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+// src/forms/forms.service.ts
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { QuestionDefinition, FormSubmission } from '../../generated/prisma';
+
 import {
   CreateQuestionDefinitionDto,
   UpdateQuestionDefinitionDto,
@@ -8,12 +9,14 @@ import {
   UpdateSubmissionDto,
   ListSubmissionsDto,
 } from './dto';
+import { FormSubmission, QuestionDefinition } from '@prisma/client';
 
 @Injectable()
 export class FormsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Question definitions
+  // ───── QuestionDefinition CRUD ─────
+
   createQuestionDef(dto: CreateQuestionDefinitionDto): Promise<QuestionDefinition> {
     return this.prisma.questionDefinition.create({ data: dto });
   }
@@ -22,19 +25,30 @@ export class FormsService {
     return this.prisma.questionDefinition.findMany();
   }
 
-  getQuestionDef(id: string): Promise<QuestionDefinition> {
-    return this.prisma.questionDefinition.findUnique({ where: { id } });
+  getQuestionDef(questionId: string): Promise<QuestionDefinition> {
+    return this.prisma.questionDefinition.findUniqueOrThrow({
+      where: { questionId },
+    });
   }
 
-  updateQuestionDef(id: string, dto: UpdateQuestionDefinitionDto): Promise<QuestionDefinition> {
-    return this.prisma.questionDefinition.update({ where: { id }, data: dto });
+  updateQuestionDef(
+    questionId: string,
+    dto: UpdateQuestionDefinitionDto,
+  ): Promise<QuestionDefinition> {
+    return this.prisma.questionDefinition.update({
+      where: { questionId },
+      data: dto,
+    });
   }
 
-  removeQuestionDef(id: string): Promise<QuestionDefinition> {
-    return this.prisma.questionDefinition.delete({ where: { id } });
+  removeQuestionDef(questionId: string): Promise<QuestionDefinition> {
+    return this.prisma.questionDefinition.delete({
+      where: { questionId },
+    });
   }
 
-  // Submissions
+  // ───── FormSubmission CRUD ─────
+
   createSubmission(dto: CreateSubmissionDto): Promise<FormSubmission> {
     const formTypeRel = dto.formTypeId
       ? { connect: { id: dto.formTypeId } }
@@ -44,45 +58,73 @@ export class FormsService {
             create: { key: dto.formTypeKey!, label: dto.formTypeKey! },
           },
         };
+
     return this.prisma.formSubmission.create({
       data: {
         formType: formTypeRel,
-        metadata: dto.metadata,
+        metadata: dto.metadata as any,
         responses: {
-          create: dto.responses.map((r) => ({ questionId: r.questionId, response: r.response as any })),
+          create: dto.responses.map(r => ({
+            questionId: r.questionId,
+            response: r.response as any,
+          })),
         },
       },
-      include: { formType: true, responses: true },
+      include: {
+        formType: true,
+        responses: true,
+      },
     });
   }
 
   listSubmissions(filter: ListSubmissionsDto = {}): Promise<FormSubmission[]> {
     const where: any = {};
     if (filter.formTypeId) where.formTypeId = filter.formTypeId;
-    if (filter.formTypeKey) where.formType = { is: { key: filter.formTypeKey } };
+    if (filter.formTypeKey) {
+      where.formType = { is: { key: filter.formTypeKey } };
+    }
+
     return this.prisma.formSubmission.findMany({
       where,
-      include: { formType: true, responses: true },
+      include: {
+        formType: true,
+        responses: true,
+      },
       orderBy: { createdAt: 'desc' },
     });
   }
 
   getSubmission(id: string): Promise<FormSubmission> {
-    return this.prisma.formSubmission.findUnique({ where: { id }, include: { responses: true } });
+    return this.prisma.formSubmission.findUniqueOrThrow({
+      where: { id },
+      include: {
+        formType: true,
+        responses: true,
+      },
+    });
   }
 
-  updateSubmission(id: string, dto: UpdateSubmissionDto): Promise<FormSubmission> {
+  updateSubmission(
+    id: string,
+    dto: UpdateSubmissionDto,
+  ): Promise<FormSubmission> {
     return this.prisma.formSubmission.update({
       where: { id },
       data: {
         responses: dto.responses
           ? {
               deleteMany: {},
-              create: dto.responses.map((r) => ({ questionId: r.questionId!, response: r.response as any })),
+              create: dto.responses.map(r => ({
+                questionId: r.questionId!,
+                response: r.response as any,
+              })),
             }
           : undefined,
       },
-      include: { formType: true, responses: true },
+      include: {
+        formType: true,
+        responses: true,
+      },
     });
   }
 

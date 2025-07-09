@@ -1,9 +1,11 @@
-export interface SubmissionResponseUpdate {
-  id?: string;
-  questionId?: string;
-  response?: unknown;
-}
+import { IsOptional, IsArray, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { SubmissionResponseDto } from './create-submission.dto';
 
 export class UpdateSubmissionDto {
-  responses?: SubmissionResponseUpdate[];
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SubmissionResponseDto)
+  responses?: SubmissionResponseDto[];
 }

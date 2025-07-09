@@ -7,5 +7,6 @@ import { FormsController } from './forms.controller';
   imports: [PrismaModule],
   providers: [FormsService],
   controllers: [FormsController],
+  exports: [FormsService], 
 })
 export class FormsModule {}
