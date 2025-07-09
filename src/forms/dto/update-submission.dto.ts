@@ -1,7 +1,7 @@
 export interface SubmissionResponseUpdate {
   id?: string;
   questionId?: string;
-  value?: unknown;
+  response?: unknown;
 }
 
 export class UpdateSubmissionDto {

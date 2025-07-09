@@ -47,8 +47,9 @@ export class FormsService {
     return this.prisma.formSubmission.create({
       data: {
         formType: formTypeRel,
+        metadata: dto.metadata,
         responses: {
-          create: dto.responses.map((r) => ({ questionId: r.questionId, value: r.value as any })),
+          create: dto.responses.map((r) => ({ questionId: r.questionId, response: r.response as any })),
         },
       },
       include: { formType: true, responses: true },
@@ -77,7 +78,7 @@ export class FormsService {
         responses: dto.responses
           ? {
               deleteMany: {},
-              create: dto.responses.map((r) => ({ questionId: r.questionId!, value: r.value as any })),
+              create: dto.responses.map((r) => ({ questionId: r.questionId!, response: r.response as any })),
             }
           : undefined,
       },

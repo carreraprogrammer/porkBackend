@@ -1,10 +1,11 @@
 export interface SubmissionResponse {
   questionId: string;
-  value: unknown;
+  response: unknown;
 }
 
 export class CreateSubmissionDto {
   formTypeId?: number;
   formTypeKey?: string;
+  metadata?: unknown;
   responses: SubmissionResponse[];
 }

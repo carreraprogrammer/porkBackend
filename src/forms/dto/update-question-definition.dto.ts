@@ -1,5 +1,5 @@
 export class UpdateQuestionDefinitionDto {
   label?: string;
-  type?: string;
+  fieldType?: string;
   options?: unknown;
 }
