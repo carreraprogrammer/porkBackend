@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, NotFoundException } from '@nestjs/common';
 import { FormTypesService } from './form-types.service';
 import { CreateFormTypeDto, UpdateFormTypeDto } from './dto';
 
@@ -17,8 +17,10 @@ export class FormTypesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.service.findOne(Number(id));
+  async findOne(@Param('id') id: string) {
+    const data = await this.service.findOne(Number(id));
+    if (!data) throw new NotFoundException();
+    return data;
   }
 
   @Put(':id')

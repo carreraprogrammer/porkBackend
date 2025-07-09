@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, NotFoundException } from '@nestjs/common';
 import { FormsService } from './forms.service';
 import {
   CreateQuestionDefinitionDto,
@@ -50,8 +50,10 @@ export class FormsController {
   }
 
   @Get('submissions/:id')
-  getSubmission(@Param('id') id: string) {
-    return this.formsService.getSubmission(id);
+  async getSubmission(@Param('id') id: string) {
+    const data = await this.formsService.getSubmission(id);
+    if (!data) throw new NotFoundException();
+    return data;
   }
 
   @Put('submissions/:id')
