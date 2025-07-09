@@ -17,7 +17,7 @@ datasource db {
 model QuestionDefinition {
   id        String   @id @default(uuid())
   label     String
-  type      String
+  fieldType String
   options   Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -32,19 +32,20 @@ model FormType {
 }
 
 model FormSubmission {
-  id        String   @id @default(uuid())
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-  formTypeId Int          @map("form_type_id")
-  formType   FormType     @relation(fields: [formTypeId], references: [id])
-  responses  QuestionResponse[]
+  id           String            @id @default(uuid())
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  formTypeId   Int               @map("form_type_id")
+  formType     FormType          @relation(fields: [formTypeId], references: [id])
+  metadata     Json
+  responses    QuestionResponse[]
 }
 
 model QuestionResponse {
   id           String   @id @default(uuid())
   questionId   String
   submissionId String
-  value        Json?
+  response     Json?
   question     QuestionDefinition @relation(fields: [questionId], references: [id])
   submission   FormSubmission     @relation(fields: [submissionId], references: [id])
 
