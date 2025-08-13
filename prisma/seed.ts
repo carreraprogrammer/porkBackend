@@ -48,7 +48,7 @@ async function main() {
     { questionId: 'human_resources', label: 'Recursos humanos', fieldType: 'text' },
     { questionId: 'estimated_costs', label: 'Costos estimados', fieldType: 'number' },
     { questionId: 'economic_resources', label: 'Recursos económicos', fieldType: 'number' },
-    { questionId: 'implementation_time', label: 'Tiempo de implementación (meses)', fieldType: 'number' },
+    { questionId: 'implementation_time', label: 'Tiempo de implementación (meses)', fieldType: 'text' },
     { questionId: 'risks', label: 'Riesgos identificados', fieldType: 'textarea' },
     { questionId: 'positive_impact', label: 'Impacto positivo esperado', fieldType: 'textarea' },
 

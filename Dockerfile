@@ -1,20 +1,31 @@
-# Stage 1: build
+# Stage 1: builder
 FROM node:20-alpine AS builder
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
 COPY prisma ./prisma
-RUN npm run postinstall
+RUN npx prisma generate
+
 COPY . .
 RUN npm run build
 
-# Stage 2: production image
+# Stage 2: production
 FROM node:20-alpine
 WORKDIR /app
-COPY package*.json ./
-RUN npm install --omit=dev
+
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/generated ./generated
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/prisma ./prisma
+
+COPY start.sh ./
+RUN chmod +x ./start.sh
+
 ENV NODE_ENV=production
-CMD ["node", "dist/main"]
+
+CMD ["sh", "./start.sh"]
