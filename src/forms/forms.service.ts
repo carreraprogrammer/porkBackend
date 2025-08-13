@@ -128,7 +128,17 @@ export class FormsService {
     });
   }
 
-  removeSubmission(id: string): Promise<FormSubmission> {
-    return this.prisma.formSubmission.delete({ where: { id } });
+  async removeSubmission(id: string): Promise<FormSubmission> {
+    // Use a transaction to first delete related QuestionResponse records
+    // then delete the FormSubmission
+    return this.prisma.$transaction(async (prisma) => {
+      // First, delete all QuestionResponse records that reference this submission
+      await prisma.questionResponse.deleteMany({
+        where: { submissionId: id }
+      });
+
+      // Then delete the FormSubmission
+      return prisma.formSubmission.delete({ where: { id } });
+    });
   }
 }
